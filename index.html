@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Good Orbit — AI Apps for a Better Life</title>
+    <meta name="description" content="Good Orbit is a collection of AI-powered apps designed to help you stay in a good orbit in your life. Start with Routine AI.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #06060C;
+            --bg-card: #0D0D18;
+            --bg-card-hover: #12121F;
+            --surface: #1A1A2E;
+            --border: rgba(255, 255, 255, 0.06);
+            --border-glow: rgba(120, 200, 255, 0.15);
+            --text-primary: #F0F0F5;
+            --text-secondary: #8888A0;
+            --text-muted: #555570;
+            --accent-blue: #5EAEFF;
+            --accent-cyan: #4AEADB;
+            --accent-purple: #A78BFA;
+            --accent-warm: #F4A261;
+            --gradient-orbital: linear-gradient(135deg, #5EAEFF 0%, #4AEADB 50%, #A78BFA 100%);
+            --gradient-subtle: linear-gradient(135deg, rgba(94, 174, 255, 0.1), rgba(74, 234, 219, 0.05));
+            --font-display: 'DM Serif Display', Georgia, serif;
+            --font-body: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-xs: 6px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: var(--surface) var(--bg-deep);
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---- CANVAS BACKGROUND ---- */
+        #orbit-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ---- NAVIGATION ---- */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(20px) saturate(1.2);
+            -webkit-backdrop-filter: blur(20px) saturate(1.2);
+            background: rgba(6, 6, 12, 0.7);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.4s ease;
+        }
+
+        nav.scrolled {
+            padding: 14px 40px;
+            background: rgba(6, 6, 12, 0.9);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-orbit {
+            width: 36px; height: 36px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .logo-orbit svg {
+            width: 36px; height: 36px;
+        }
+
+        @keyframes orbit-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .logo-text {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .logo-text em {
+            font-style: italic;
+            background: var(--gradient-orbital);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s;
+            letter-spacing: 0.02em;
+        }
+
+        .nav-links a:hover { color: var(--text-primary); }
+
+        .nav-cta {
+            padding: 10px 24px;
+            background: rgba(94, 174, 255, 0.1);
+            border: 1px solid rgba(94, 174, 255, 0.25);
+            border-radius: 100px;
+            color: var(--accent-blue) !important;
+            font-weight: 500 !important;
+            transition: all 0.3s !important;
+        }
+
+        .nav-cta:hover {
+            background: rgba(94, 174, 255, 0.18) !important;
+            border-color: rgba(94, 174, 255, 0.4) !important;
+            box-shadow: 0 0 20px rgba(94, 174, 255, 0.15);
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .menu-toggle span {
+            display: block;
+            width: 24px;
+            height: 2px;
+            background: var(--text-secondary);
+            margin: 5px 0;
+            transition: all 0.3s;
+        }
+
+        /* ---- SECTIONS ---- */
+        section {
+            position: relative;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* ---- HERO ---- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 140px 40px 100px;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 780px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: rgba(94, 174, 255, 0.08);
+            border: 1px solid rgba(94, 174, 255, 0.15);
+            border-radius: 100px;
+            font-size: 0.82rem;
+            color: var(--accent-blue);
+            font-weight: 500;
+            margin-bottom: 32px;
+            letter-spacing: 0.04em;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.2s;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .hero-badge:hover {
+            background: rgba(94, 174, 255, 0.14);
+            border-color: rgba(94, 174, 255, 0.3);
+            box-shadow: 0 0 16px rgba(94, 174, 255, 0.12);
+        }
+
+        .hero-badge .dot {
+            width: 7px; height: 7px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 7vw, 5.2rem);
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            margin-bottom: 28px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.4s;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            background: var(--gradient-orbital);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+            max-width: 540px;
+            margin: 0 auto 44px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.6s;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.8s;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 36px;
+            background: var(--gradient-orbital);
+            border: none;
+            border-radius: 100px;
+            color: #06060C;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 24px rgba(94, 174, 255, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(94, 174, 255, 0.35);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 36px;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            border-color: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* ---- FLOATING ORBIT DECORATION ---- */
+        .hero-orbit-deco {
+            position: absolute;
+            width: 600px; height: 600px;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .hero-orbit-deco .orbit-ring {
+            position: absolute;
+            border: 1px solid;
+            border-radius: 50%;
+            top: 50%; left: 50%;
+        }
+
+        .hero-orbit-deco .orbit-ring-1 {
+            width: 300px; height: 300px;
+            margin: -150px 0 0 -150px;
+            border-color: rgba(94, 174, 255, 0.06);
+            animation: orbit-spin 30s linear infinite;
+        }
+
+        .hero-orbit-deco .orbit-ring-2 {
+            width: 450px; height: 450px;
+            margin: -225px 0 0 -225px;
+            border-color: rgba(74, 234, 219, 0.04);
+            animation: orbit-spin 45s linear infinite reverse;
+        }
+
+        .hero-orbit-deco .orbit-ring-3 {
+            width: 600px; height: 600px;
+            margin: -300px 0 0 -300px;
+            border-color: rgba(167, 139, 250, 0.03);
+            animation: orbit-spin 60s linear infinite;
+        }
+
+        .hero-orbit-deco .orbit-dot {
+            position: absolute;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+        }
+
+        .hero-orbit-deco .orbit-dot-1 {
+            background: var(--accent-blue);
+            box-shadow: 0 0 10px var(--accent-blue);
+            top: calc(50% - 150px); left: 50%;
+            animation: orbit-spin 30s linear infinite;
+            transform-origin: 0 150px;
+        }
+
+        .hero-orbit-deco .orbit-dot-2 {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan);
+            top: calc(50% - 225px); left: 50%;
+            animation: orbit-spin 45s linear infinite reverse;
+            transform-origin: 0 225px;
+        }
+
+        /* ---- APPS SECTION ---- */
+        .apps-section {
+            padding: 120px 0;
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 16px;
+        }
+
+        .section-label::before {
+            content: '';
+            width: 20px; height: 1px;
+            background: var(--accent-cyan);
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.2rem, 4vw, 3.2rem);
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 520px;
+            margin-bottom: 56px;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .app-card {
+            position: relative;
+            padding: 40px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: all 0.4s ease;
+            overflow: hidden;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: var(--radius);
+            padding: 1.5px;
+            background: var(--gradient-orbital);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .app-card:hover {
+            background: var(--bg-card-hover);
+            border-color: transparent;
+            transform: translateY(-4px);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3), 0 0 30px rgba(94, 174, 255, 0.06);
+        }
+
+        .app-card:hover::before { opacity: 1; }
+
+        .app-card.featured {
+            grid-column: span 2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+            background: linear-gradient(135deg, var(--bg-card) 0%, rgba(94, 174, 255, 0.03) 100%);
+        }
+
+        .app-icon {
+            width: 52px; height: 52px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-size: 1.5rem;
+            position: relative;
+        }
+
+        .app-icon.routine {
+            background: linear-gradient(135deg, rgba(94, 174, 255, 0.15), rgba(74, 234, 219, 0.1));
+            border: 1px solid rgba(94, 174, 255, 0.2);
+        }
+
+        .app-icon.coming {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .app-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 16px;
+        }
+
+        .app-status.live {
+            color: var(--accent-cyan);
+        }
+
+        .app-status.soon {
+            color: var(--text-muted);
+        }
+
+        .app-status .status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+        }
+
+        .app-status.live .status-dot {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 8px rgba(74, 234, 219, 0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .app-status.soon .status-dot {
+            background: var(--text-muted);
+        }
+
+        .app-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.6rem;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+        }
+
+        .app-card p {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .app-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .app-feature-tag {
+            padding: 6px 14px;
+            background: rgba(94, 174, 255, 0.06);
+            border: 1px solid rgba(94, 174, 255, 0.1);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--accent-blue);
+            font-weight: 500;
+        }
+
+        .app-preview {
+            position: relative;
+            background: var(--bg-deep);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            padding: 24px;
+            min-height: 260px;
+            overflow: hidden;
+        }
+
+        .app-preview-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .app-preview-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+        }
+
+        .preview-routine {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .preview-routine-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .preview-routine-item:hover {
+            background: rgba(94, 174, 255, 0.04);
+            border-color: rgba(94, 174, 255, 0.12);
+        }
+
+        .preview-time {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--accent-cyan);
+            min-width: 52px;
+        }
+
+        .preview-check {
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .preview-check.done {
+            border-color: var(--accent-cyan);
+            background: rgba(74, 234, 219, 0.15);
+        }
+
+        .preview-check.done::after {
+            content: '✓';
+            font-size: 0.65rem;
+            color: var(--accent-cyan);
+        }
+
+        .preview-label { color: var(--text-secondary); }
+        .preview-label.done-text { color: var(--text-muted); text-decoration: line-through; }
+
+        /* ---- VISION SECTION ---- */
+        .vision-section {
+            padding: 100px 0 120px;
+        }
+
+        .vision-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 56px;
+        }
+
+        .vision-card {
+            padding: 36px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: all 0.4s;
+        }
+
+        .vision-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+        }
+
+        .vision-icon {
+            width: 44px; height: 44px;
+            border-radius: var(--radius-xs);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+        }
+
+        .vision-card h3 {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            margin-bottom: 10px;
+        }
+
+        .vision-card p {
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        /* ---- ABOUT SECTION ---- */
+        .about-section {
+            padding: 100px 0 120px;
+            border-top: 1px solid var(--border);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 64px;
+            align-items: center;
+        }
+
+        .about-avatar {
+            position: relative;
+        }
+
+        .about-avatar-ring {
+            width: 220px; height: 220px;
+            border-radius: 50%;
+            padding: 3px;
+            background: var(--gradient-orbital);
+            position: relative;
+        }
+
+        .about-avatar-inner {
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            background: var(--bg-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            font-family: var(--font-display);
+            background: linear-gradient(135deg, var(--bg-card), var(--surface));
+        }
+
+        .about-avatar-inner span {
+            background: var(--gradient-orbital);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .about-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+            justify-content: center;
+        }
+
+        .about-location span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .about-content h2 {
+            font-family: var(--font-display);
+            font-size: clamp(1.8rem, 3vw, 2.4rem);
+            margin-bottom: 20px;
+        }
+
+        .about-content p {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .about-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 28px;
+        }
+
+        .about-tag {
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .about-tag.android {
+            background: rgba(74, 234, 219, 0.08);
+            border: 1px solid rgba(74, 234, 219, 0.15);
+            color: var(--accent-cyan);
+        }
+
+        .about-tag.compose {
+            background: rgba(167, 139, 250, 0.08);
+            border: 1px solid rgba(167, 139, 250, 0.15);
+            color: var(--accent-purple);
+        }
+
+        .about-tag.exp {
+            background: rgba(244, 162, 97, 0.08);
+            border: 1px solid rgba(244, 162, 97, 0.15);
+            color: var(--accent-warm);
+        }
+
+        .about-tag.ai {
+            background: rgba(94, 174, 255, 0.08);
+            border: 1px solid rgba(94, 174, 255, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .about-social {
+            margin-top: 28px;
+        }
+
+        .about-social a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+            padding: 8px 0;
+        }
+
+        .about-social a:hover {
+            color: var(--accent-blue);
+        }
+
+        .about-social a svg {
+            width: 18px; height: 18px;
+        }
+
+        /* ---- FOOTER ---- */
+        footer {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-left {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .footer-right a {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-right a:hover { color: var(--text-secondary); }
+
+        /* ---- SCROLL ANIMATIONS ---- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ---- GLOW EFFECTS ---- */
+        .glow-top {
+            position: absolute;
+            width: 600px; height: 600px;
+            top: -200px; left: 50%;
+            transform: translateX(-50%);
+            background: radial-gradient(circle, rgba(94, 174, 255, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* ---- MOBILE ---- */
+        @media (max-width: 900px) {
+            nav { padding: 16px 24px; }
+            .nav-links { display: none; }
+            .menu-toggle { display: block; }
+
+            .nav-links.open {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                left: 0; right: 0;
+                background: rgba(6, 6, 12, 0.95);
+                backdrop-filter: blur(20px);
+                padding: 24px;
+                gap: 16px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .container { padding: 0 24px; }
+            .hero { padding: 120px 24px 80px; }
+
+            .app-grid { grid-template-columns: 1fr; }
+            .app-card.featured {
+                grid-column: span 1;
+                grid-template-columns: 1fr;
+                gap: 28px;
+            }
+
+            .vision-grid { grid-template-columns: 1fr; }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+
+            .about-tags { justify-content: center; }
+            .about-social { text-align: center; }
+
+            .footer-inner {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+
+            .hero-orbit-deco { display: none; }
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2.4rem; }
+            .hero-actions { flex-direction: column; }
+            .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="orbit-canvas"></canvas>
+
+    <!-- NAV -->
+    <nav id="navbar">
+        <a href="#" class="logo">
+            <div class="logo-orbit">
+                <svg viewBox="0 0 36 36" fill="none">
+                    <circle cx="18" cy="18" r="15" stroke="url(#logoGrad)" stroke-width="1.5" opacity="0.3"/>
+                    <ellipse cx="18" cy="18" rx="15" ry="8" stroke="url(#logoGrad)" stroke-width="1.5" transform="rotate(-25 18 18)" opacity="0.6"/>
+                    <circle cx="18" cy="18" r="4.5" fill="url(#logoGrad)"/>
+                    <circle cx="28" cy="11" r="2.2" fill="#4AEADB" opacity="0.9">
+                        <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="10s" repeatCount="indefinite"/>
+                    </circle>
+                    <defs>
+                        <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36">
+                            <stop offset="0%" stop-color="#5EAEFF"/>
+                            <stop offset="50%" stop-color="#4AEADB"/>
+                            <stop offset="100%" stop-color="#A78BFA"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <span class="logo-text"><em>Good Orbit</em></span>
+        </a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#apps">Apps</a></li>
+            <li><a href="#vision">Vision</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#apps" class="nav-cta">Get Started</a></li>
+        </ul>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="glow-top"></div>
+        <div class="hero-orbit-deco">
+            <div class="orbit-ring orbit-ring-1"></div>
+            <div class="orbit-ring orbit-ring-2"></div>
+            <div class="orbit-ring orbit-ring-3"></div>
+            <div class="orbit-dot orbit-dot-1"></div>
+            <div class="orbit-dot orbit-dot-2"></div>
+        </div>
+        <div class="hero-content">
+            <a href="#routine-ai" class="hero-badge">
+                <span class="dot"></span>
+                Routine AI — Now Live
+            </a>
+            <h1>Stay in a<br><em>Good Orbit</em></h1>
+            <p>A collection of AI-powered apps designed to help you build better habits, stay consistent, and live a life you're proud of.</p>
+            <div class="hero-actions">
+                <a href="#apps" class="btn-primary">
+                    Explore Apps
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </a>
+                <a href="#about" class="btn-secondary">Meet the Creator</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- APPS -->
+    <section class="apps-section" id="apps">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-label">Apps</div>
+                <h2 class="section-title">Your AI-powered life toolkit</h2>
+                <p class="section-desc">Each app is purpose-built to solve one thing well, using AI to adapt to your life — not the other way around.</p>
+            </div>
+
+            <div class="app-grid">
+                <!-- FEATURED: ROUTINE AI -->
+                <div class="app-card featured reveal" id="routine-ai">
+                    <div>
+                        <div class="app-icon routine">🌀</div>
+                        <div class="app-status live">
+                            <span class="status-dot"></span>
+                            Live
+                        </div>
+                        <h3>Routine AI</h3>
+                        <p>Your personal AI routine architect. Tell it your goals, constraints, and lifestyle — it crafts a daily routine that actually works for you. Adapts as your life changes.</p>
+                        <div class="app-features">
+                            <span class="app-feature-tag">AI-Generated Routines</span>
+                            <span class="app-feature-tag">Smart Reminders</span>
+                            <span class="app-feature-tag">Habit Tracking</span>
+                            <span class="app-feature-tag">Adaptive</span>
+                        </div>
+                    </div>
+                    <div class="app-preview">
+                        <div class="app-preview-header">
+                            <span class="app-preview-dot" style="background: #ff5f57;"></span>
+                            <span class="app-preview-dot" style="background: #febc2e;"></span>
+                            <span class="app-preview-dot" style="background: #28c840;"></span>
+                        </div>
+                        <div class="preview-routine">
+                            <div class="preview-routine-item">
+                                <span class="preview-time">06:30</span>
+                                <span class="preview-check done"></span>
+                                <span class="preview-label done-text">Morning meditation</span>
+                            </div>
+                            <div class="preview-routine-item">
+                                <span class="preview-time">07:00</span>
+                                <span class="preview-check done"></span>
+                                <span class="preview-label done-text">30 min workout</span>
+                            </div>
+                            <div class="preview-routine-item">
+                                <span class="preview-time">08:00</span>
+                                <span class="preview-check"></span>
+                                <span class="preview-label">Deep work session</span>
+                            </div>
+                            <div class="preview-routine-item">
+                                <span class="preview-time">12:30</span>
+                                <span class="preview-check"></span>
+                                <span class="preview-label">Lunch + walk</span>
+                            </div>
+                            <div class="preview-routine-item">
+                                <span class="preview-time">18:00</span>
+                                <span class="preview-check"></span>
+                                <span class="preview-label">Side project time</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UPCOMING APP 1 -->
+                <div class="app-card reveal">
+                    <div class="app-icon coming">💰</div>
+                    <div class="app-status soon">
+                        <span class="status-dot"></span>
+                        Coming Soon
+                    </div>
+                    <h3>Finance AI</h3>
+                    <p>Smart budgeting and financial insights powered by AI. Understand your spending patterns and build lasting financial health.</p>
+                </div>
+
+                <!-- UPCOMING APP 2 -->
+                <div class="app-card reveal">
+                    <div class="app-icon coming">🧘</div>
+                    <div class="app-status soon">
+                        <span class="status-dot"></span>
+                        Coming Soon
+                    </div>
+                    <h3>Mindful AI</h3>
+                    <p>AI-guided mindfulness and mental clarity. Personalized breathing exercises, journaling prompts, and emotional tracking.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- VISION -->
+    <section class="vision-section" id="vision">
+        <div class="container">
+            <div class="reveal">
+                <div class="section-label">Vision</div>
+                <h2 class="section-title">Why Good Orbit?</h2>
+                <p class="section-desc">Life isn't about one big change — it's about staying in a good orbit, day after day.</p>
+            </div>
+
+            <div class="vision-grid">
+                <div class="vision-card reveal">
+                    <div class="vision-icon">🎯</div>
+                    <h3>Purpose-Built</h3>
+                    <p>Each app solves one specific life challenge exceptionally well, rather than being a bloated all-in-one tool.</p>
+                </div>
+                <div class="vision-card reveal">
+                    <div class="vision-icon">🤖</div>
+                    <h3>AI That Adapts</h3>
+                    <p>Our AI learns your patterns, preferences, and constraints to deliver truly personalized guidance.</p>
+                </div>
+                <div class="vision-card reveal">
+                    <div class="vision-icon">🌱</div>
+                    <h3>Sustainable Growth</h3>
+                    <p>No crash diets or impossible routines. We believe in small, consistent improvements that compound over time.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="about-grid reveal">
+                <div class="about-avatar">
+                    <div class="about-avatar-ring">
+                        <div class="about-avatar-inner">
+                            <span>HB</span>
+                        </div>
+                    </div>
+                    <div class="about-location">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--text-muted);">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        <span>Munich, Germany</span>
+                    </div>
+                </div>
+                <div class="about-content">
+                    <div class="section-label">Creator</div>
+                    <h2>Harsha Bhagwat</h2>
+                    <p>Android Developer with over 10 years of experience building products that people love. Currently working at <strong style="color: var(--text-primary);">Holidu GmbH</strong> in Munich. Originally from Sirsi, Karnataka — a small town surrounded by the Western Ghats.</p>
+                    <p>Good Orbit is born from a simple belief: the right tools, powered by AI, can help anyone build a life of consistency and purpose.</p>
+
+                    <div class="about-tags">
+                        <span class="about-tag android">Android</span>
+                        <span class="about-tag compose">Compose Multiplatform</span>
+                        <span class="about-tag exp">10+ Years</span>
+                        <span class="about-tag ai">AI Enthusiast</span>
+                    </div>
+
+                    <div class="about-social">
+                        <a href="https://x.com/bhagwat_io" target="_blank" rel="noopener noreferrer">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                            @bhagwat_io
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-inner">
+                <div class="footer-left">© 2026 Good Orbit. Built with ♥ in Munich.</div>
+                <div class="footer-right">
+                    <a href="https://x.com/bhagwat_io" target="_blank" rel="noopener noreferrer">Twitter</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ---- STARFIELD CANVAS ----
+        const canvas = document.getElementById('orbit-canvas');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        const STAR_COUNT = 120;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < STAR_COUNT; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 1.2 + 0.3,
+                    alpha: Math.random() * 0.5 + 0.1,
+                    speed: Math.random() * 0.0003 + 0.0001,
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        function drawStars(time) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stars.forEach(s => {
+                const flicker = Math.sin(time * s.speed * 1000 + s.phase) * 0.3 + 0.7;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(200, 210, 240, ${s.alpha * flicker})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(drawStars);
+        }
+
+        resizeCanvas();
+        initStars();
+        requestAnimationFrame(drawStars);
+        window.addEventListener('resize', () => { resizeCanvas(); initStars(); });
+
+        // ---- NAV SCROLL ----
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // ---- MOBILE MENU ----
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
+        });
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => navLinks.classList.remove('open'));
+        });
+
+        // ---- SCROLL REVEAL ----
+        const revealElements = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 100);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        revealElements.forEach(el => observer.observe(el));
+
+        // ---- SMOOTH SCROLL ----
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
