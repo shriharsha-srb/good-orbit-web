@@ -294,20 +294,26 @@
         .intro {
             position: relative;
             overflow: hidden;
+            isolation: isolate;
             padding: clamp(128px, 16vh, 176px) 0 clamp(72px, 9vw, 120px);
         }
+        .intro > .wrap { position: relative; z-index: 1; }
+        /* The whole orbit (ring + satellite) stays inside the section so the ball is never clipped.
+           Lines sit behind the content; the satellites ride on a twin layer in front of it. */
         .intro-rings {
             position: absolute;
-            width: min(980px, 140vw);
-            right: max(-360px, -30vw);
-            top: -22%;
-            z-index: -1;
+            width: min(720px, calc(100vw - 40px));
+            top: 88px;
+            right: max(20px, calc((100vw - var(--max)) / 2 + 20px));
+            left: auto;
+            transform: none;
+            overflow: visible;
+            z-index: 0;
         }
+        .intro-rings--front { z-index: 2; }
         .intro-rings circle { stroke-opacity: 0.1; }
-        .intro-rings .sat { fill: var(--green); }
-        .intro .eyebrow { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 28px; }
-        .intro .eyebrow .go-mark { width: 30px; height: 30px; border-radius: 9px; font-size: 10.5px; letter-spacing: -0.02em; }
-        .intro h1 { font-size: clamp(52px, 9.6vw, 156px); max-width: 11ch; }
+        .intro-rings .sat { fill: var(--green); stroke-opacity: 1; }
+        .intro h1 { position: relative; font-size: clamp(52px, 9.6vw, 156px); max-width: 11ch; }
         .intro h1 em { font-style: normal; color: #12A862; }
 
         .intro-grid {
@@ -317,6 +323,7 @@
             align-items: end;
             margin-top: clamp(40px, 5vw, 72px);
         }
+        .intro-copy > p strong { color: var(--ink); font-weight: 700; }
         .intro-copy > p { font-size: clamp(18px, 1.6vw, 22px); color: rgba(23, 19, 28, 0.78); max-width: 540px; }
         .founder {
             display: flex;
@@ -763,23 +770,24 @@
         <!-- ============================================ STUDIO INTRO -->
         <section class="intro" id="studio" aria-labelledby="intro-title">
             <svg class="rings intro-rings" viewBox="0 0 1000 1000" aria-hidden="true">
-                <circle cx="500" cy="500" r="498"/>
-                <circle cx="500" cy="500" r="380"/>
-                <circle cx="500" cy="500" r="262"/>
-                <g class="rings-spin"><circle class="sat" cx="500" cy="2" r="11"/></g>
-                <g class="rings-spin rev"><circle class="sat" cx="880" cy="500" r="8"/></g>
+                <circle cx="500" cy="500" r="484"/>
+                <circle cx="500" cy="500" r="370"/>
+                <circle cx="500" cy="500" r="256"/>
+            </svg>
+            <svg class="rings intro-rings intro-rings--front" viewBox="0 0 1000 1000" aria-hidden="true">
+                <g class="rings-spin"><circle class="sat" cx="500" cy="16" r="13"/></g>
+                <g class="rings-spin rev"><circle class="sat" cx="870" cy="500" r="9"/></g>
             </svg>
             <div class="wrap">
-                <span class="eyebrow"><span class="go-mark" aria-hidden="true">G.O.</span>Good Orbit AI Studio · Munich</span>
                 <h1 class="display" id="intro-title">Apps that keep life in a <em>good orbit.</em></h1>
                 <div class="intro-grid">
                     <div class="intro-copy">
-                        <p>Good Orbit AI Studio is an independent studio building calm, purpose-built apps. Each one solves one thing well and fits into your life — not the other way around.</p>
+                        <p><strong>Good Orbit AI Studio</strong> is an independent studio building calm, purpose-built apps. Each one solves one thing well and fits into your life — not the other way around.</p>
                         <div class="founder">
                             <div class="avatar" aria-hidden="true">HB</div>
                             <div class="founder-text">
                                 <b>Harsha Bhagwat, founder</b>
-                                <span>Android developer with 10+ years of building products people love. Originally from Sirsi, in the Western Ghats.</span>
+                                <span>Android developer with 10+ years of building products people love. Originally from Sirsi, Western Ghats, India.</span>
                             </div>
                             <a class="x-link" href="https://x.com/bhagwat_io" target="_blank" rel="noopener noreferrer" aria-label="Harsha Bhagwat on X">
                                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -828,8 +836,6 @@
                     <circle cx="500" cy="500" r="498"/>
                     <circle cx="500" cy="500" r="380"/>
                     <circle cx="500" cy="500" r="262"/>
-                    <g class="rings-spin"><circle class="sat" cx="500" cy="2" r="11"/></g>
-                    <g class="rings-spin rev"><circle class="sat" cx="880" cy="500" r="8"/></g>
                 </svg>
                 <div class="phone phone--left" data-parallax="0.10"><img src="assets/img/phone-community.webp" alt="" width="1000" height="2065"></div>
                 <div class="phone phone--right" data-parallax="0.14"><img src="assets/img/phone-grid.webp" alt="" width="1000" height="1628"></div>
