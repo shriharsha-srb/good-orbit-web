@@ -1,1 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#17131C"/><text x="32" y="41" text-anchor="middle" font-family="Arial Black, Archivo, Arial, sans-serif" font-weight="900" font-size="23" letter-spacing="-1" fill="#FBF7EF">G.O.</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#17131C"/><circle cx="31" cy="34" r="15" fill="none" stroke="#FBF7EF" stroke-width="8"/><circle cx="46" cy="18" r="8" fill="#25D07E" stroke="#17131C" stroke-width="4"/></svg>

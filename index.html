@@ -124,21 +124,16 @@
 
         .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; letter-spacing: -0.01em; font-size: 18px; }
         .go-mark {
-            display: inline-grid;
-            place-items: center;
+            --mark-bg: var(--ink);
+            display: block;
             width: 40px;
             height: 40px;
             flex-shrink: 0;
             border-radius: 12px;
-            background: var(--ink);
+            background: var(--mark-bg);
             color: var(--cream);
-            font-family: var(--display);
-            font-weight: 900;
-            font-stretch: 100%;
-            font-size: 14px;
-            letter-spacing: -0.03em;
-            line-height: 1;
         }
+        .go-mark svg { display: block; width: 100%; height: 100%; }
         .brand-name small { font-weight: 500; opacity: 0.6; font-size: inherit; }
         @keyframes orbit { to { transform: rotate(360deg); } }
 
@@ -637,7 +632,7 @@
         footer { background: var(--ink); color: rgba(251, 247, 239, 0.7); padding: 56px 0 40px; font-size: 15px; }
         .foot { display: flex; justify-content: space-between; align-items: start; gap: 40px; flex-wrap: wrap; }
         .foot .brand { color: var(--cream); }
-        .foot .go-mark { background: var(--cream); color: var(--ink); }
+        .foot .go-mark { --mark-bg: var(--cream); color: var(--ink); }
         .foot-links { display: flex; gap: 48px; flex-wrap: wrap; }
         .foot-links div { display: flex; flex-direction: column; gap: 10px; }
         .foot-links b { color: var(--cream); font-family: var(--mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
@@ -750,7 +745,7 @@
     <header class="nav" id="nav">
         <div class="wrap">
             <a href="#top" class="brand" aria-label="Good Orbit AI Studio — home">
-                <span class="go-mark" aria-hidden="true">G.O.</span>
+                <span class="go-mark" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><circle cx="31" cy="34" r="15" stroke="currentColor" stroke-width="8"/><circle cx="46" cy="18" r="8" fill="var(--green)" stroke="var(--mark-bg)" stroke-width="4"/></svg></span>
                 <span class="brand-name">Good Orbit <small>AI Studio</small></span>
             </a>
             <nav aria-label="Primary">
@@ -1029,7 +1024,7 @@
         <div class="wrap">
             <div class="foot">
                 <a href="#top" class="brand" aria-label="Good Orbit AI Studio — home">
-                <span class="go-mark" aria-hidden="true">G.O.</span>
+                <span class="go-mark" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><circle cx="31" cy="34" r="15" stroke="currentColor" stroke-width="8"/><circle cx="46" cy="18" r="8" fill="var(--green)" stroke="var(--mark-bg)" stroke-width="4"/></svg></span>
                 <span class="brand-name">Good Orbit <small>AI Studio</small></span>
             </a>
                 <div class="foot-links">
